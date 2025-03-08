@@ -49,9 +49,6 @@ Solutions:
 
 def summarize_url(url: str, model: str, language: str) -> None:
     article = get_article_text(url)
-    assert article.text is None and article.error is None, (
-        "ArticleText should have either text or error"
-    )
     if article.text is None:
         system_prompt = ERROR_SYSTEM_PROMPT.format(language=language)
         _make_output(article.error, model, system_prompt)  # type: ignore
