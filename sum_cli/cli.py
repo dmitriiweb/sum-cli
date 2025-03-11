@@ -1,4 +1,3 @@
-
 from sum_cli.summarizer import summarize_url
 
 from .config import SummarizerArgs

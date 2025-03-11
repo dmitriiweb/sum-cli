@@ -1,6 +1,3 @@
-from langchain.prompts import (
-    ChatPromptTemplate,
-)
 from langchain_ollama.llms import OllamaLLM
 
 from . import promt_templates as pt
@@ -12,19 +9,15 @@ def summarize_url(args: SummarizerArgs) -> None:
     print("Reading article from URL...", end="\r")
     article = get_article_text(args.url)
     if article.error is not None:
-        _make_output(args.model, pt.error_chat_template, args.language, article.error)
-        return
+        prompt = pt.error_chat_template
+        text = article.error
     elif article.text is not None:
-        _make_output(args.model, pt.output_chat_template, args.language, article.text)
+        prompt = pt.output_chat_template
+        text = article.text
+    else:
+        print("Error: Unable to extract text from the provided URL.")
         return
-    print("Error: Unable to extract text from the provided URL.")
-    return
-
-
-def _make_output(
-    model_name: str, prompt: ChatPromptTemplate, language: str, text: str
-) -> None:
-    model = OllamaLLM(model=model_name)
+    model = OllamaLLM(model=args.model)
     chain = prompt | model
-    for token in chain.stream({"language": language, "text": text}):
+    for token in chain.stream({"language": args.language, "text": text}):
         print(token, end="")
