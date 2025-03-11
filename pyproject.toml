@@ -5,6 +5,7 @@ description = "CLI tool to extract and summarize text from a given URL. Quickly 
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "langchain>=0.3.20",
     "langchain-ollama>=0.2.3",
     "lxml[html-clean]>=5.3.1",
     "newspaper3k>=0.2.8",
