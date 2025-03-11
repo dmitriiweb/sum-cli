@@ -1,9 +1,16 @@
-from langchain_core.messages import HumanMessage, SystemMessage
+from typing import Any
+
+from langchain.prompts import (
+    HumanMessagePromptTemplate,
+    PromptTemplate,
+    SystemMessagePromptTemplate,
+    ChatPromptTemplate,
+)
 from langchain_ollama.llms import OllamaLLM
 
 from .get_text_article import get_article_text
 
-OUTPUT_SYSTEM_PROMPT = """You are an advanced AI model specializing in text summarization. Your task is to generate a concise and informative summary of a given article. Extract the key points while maintaining clarity and coherence. Avoid unnecessary details, opinions, or redundant information.
+OUTPUT_SYSTEM_PROMPT_TEMPLATE = """You are an advanced AI model specializing in text summarization. Your task is to generate a concise and informative summary of a given article. Extract the key points while maintaining clarity and coherence. Avoid unnecessary details, opinions, or redundant information.
 Output Requirements:
     1. Use {language} for the output.
     2. Keep the summary brief and to the point, ideally within [X] sentences.
@@ -12,7 +19,7 @@ Output Requirements:
     5. If the article contains multiple topics, focus on the most important aspects.
 """
 
-ERROR_SYSTEM_PROMPT = """You are an AI assistant specializing in troubleshooting and providing solutions for errors related to text extraction using the newspaper3k Python library.
+ERROR_SYSTEM_PROMPT_TEMPLATE = """You are an AI assistant specializing in troubleshooting and providing solutions for errors related to text extraction using the newspaper3k Python library.
 
 Task:
 
@@ -46,24 +53,49 @@ Solutions:
     - Check if the URL is correct and accessible.
 """
 
+output_system_prompt = SystemMessagePromptTemplate(
+    prompt=PromptTemplate(
+        input_variables=["language"], template=OUTPUT_SYSTEM_PROMPT_TEMPLATE
+    )
+)
+error_system_prompt = SystemMessagePromptTemplate(
+    prompt=PromptTemplate(
+        input_variables=["language"], template=ERROR_SYSTEM_PROMPT_TEMPLATE
+    )
+)
+human_url_prompt = HumanMessagePromptTemplate(
+    prompt=PromptTemplate(input_variables=["text"], template="{text}")
+)
+human_error_prompt = HumanMessagePromptTemplate(
+    prompt=PromptTemplate(input_variables=["text"], template="{text}")
+)
+
+error_messages = [error_system_prompt, human_error_prompt]
+error_chat_template = ChatPromptTemplate(
+    input_variables=["language", "text"], messages=error_messages
+)
+output_messages = [output_system_prompt, human_url_prompt]
+output_chat_template = ChatPromptTemplate(
+    input_variables=["language", "text"], messages=output_messages
+)
+
+
 
 def summarize_url(url: str, model: str, language: str) -> None:
+    print("Reading article from URL...", end="\r")
     article = get_article_text(url)
-    if article.text is None:
-        system_prompt = ERROR_SYSTEM_PROMPT.format(language=language)
-        _make_output(article.error, model, system_prompt)  # type: ignore
-        print(f"Error: {article.error}")
+    if article.error is not None:
+        _make_output(model, error_chat_template, language, article.error)
         return
-    system_prompt = OUTPUT_SYSTEM_PROMPT.format(language=language)
-    _make_output(article.text, model, system_prompt)
+    elif article.text is not None:
+        _make_output(model, output_chat_template, language, article.text)
+        return
+    print("Error: Unable to extract text from the provided URL.")
     return
 
 
-def _make_output(text: str, model_name: str, system_prompt: str) -> None:
+def _make_output(model_name: str, prompt: ChatPromptTemplate, language: str, text: str) -> None:
     model = OllamaLLM(model=model_name)
-    messages = [
-        SystemMessage(system_prompt),
-        HumanMessage(text),
-    ]
-    for token in model.stream(messages):
+    chain = prompt | model
+    for token in chain.stream({"language": language, "text": text}):
         print(token, end="")
