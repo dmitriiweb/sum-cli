@@ -11,6 +11,7 @@ class SummarizerArgs:
     language: str
     embeding_name: str
     is_chat: bool
+    num_ctx: int
 
     @classmethod
     def from_cli(cls) -> SummarizerArgs:
@@ -49,6 +50,13 @@ class SummarizerArgs:
             default="nomic-embed-text:latest",
             help="Embeding model to use, default is nomic-embed-text:latest",
         )
+        parser.add_argument(
+            "-n",
+            "--num_ctx",
+            default=8192,
+            type=int,
+            help="Number of context tokens for the embeding model, default is 8192",
+        )
 
         args = parser.parse_args()
         return SummarizerArgs(
@@ -57,4 +65,5 @@ class SummarizerArgs:
             language=args.language,
             embeding_name=args.embeding,
             is_chat=args.chat,
+            num_ctx=args.num_ctx,
         )
