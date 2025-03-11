@@ -1,6 +1,6 @@
 [project]
 name = "sum-cli"
-version = "0.1.0"
+version = "0.2.0"
 description = "CLI tool to extract and summarize text from a given URL. Quickly get the key points of any webpage without reading the full content."
 readme = "README.md"
 requires-python = ">=3.10"
