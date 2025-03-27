@@ -10,6 +10,7 @@ dependencies = [
     "langchain-ollama>=0.2.3",
     "lxml[html-clean]>=5.3.1",
     "newspaper3k>=0.2.8",
+    "requests>=2.32.3",
 ]
 authors = [{ name = "Dmitrii K", email = "dmitriik@proton.me" }]
 license = { text = "MIT" }
