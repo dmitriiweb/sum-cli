@@ -1,6 +1,5 @@
 [project]
 name = "sum-cli"
-version = "0.2.0"
 description = "CLI tool to extract and summarize text from a given URL. Quickly get the key points of any webpage without reading the full content."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -10,7 +9,9 @@ dependencies = [
     "langchain-ollama>=0.2.3",
     "lxml[html-clean]>=5.3.1",
     "newspaper3k>=0.2.8",
+    "requests>=2.32.3",
 ]
+dynamic = ["version"]
 authors = [{ name = "Dmitrii K", email = "dmitriik@proton.me" }]
 license = { text = "MIT" }
 keywords = ["CLI", "summarize", "text extraction", "web scraping"]
@@ -30,12 +31,15 @@ Homepage = "https://github.com/dmitriiweb/sum-cli"
 requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.mypy]
+files = ["sum_cli/get_text_article"]
+disable_error_code = ["import-untyped"]
+
+[tool.setuptools.dynamic]
+version = {attr = "sum_cli.__version__"}
+
 [dependency-groups]
 dev = ["mypy>=1.15.0", "ruff>=0.9.10"]
 
 [project.scripts]
-sum_cli = "sum_cli.cli:main"
-
-[tool.mypy]
-files = ["sum_cli/get_text_article"]
-disable_error_code = ["import-untyped"]
+sum-cli = "sum_cli.cli:main"

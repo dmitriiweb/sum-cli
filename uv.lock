@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.12.4'",
@@ -2089,7 +2090,6 @@ wheels = [
 
 [[package]]
 name = "sum-cli"
-version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "langchain" },
@@ -2097,6 +2097,7 @@ dependencies = [
     { name = "langchain-ollama" },
     { name = "lxml", extra = ["html-clean"] },
     { name = "newspaper3k" },
+    { name = "requests" },
 ]
 
 [package.dev-dependencies]
@@ -2112,6 +2113,7 @@ requires-dist = [
     { name = "langchain-ollama", specifier = ">=0.2.3" },
     { name = "lxml", extras = ["html-clean"], specifier = ">=5.3.1" },
     { name = "newspaper3k", specifier = ">=0.2.8" },
+    { name = "requests", specifier = ">=2.32.3" },
 ]
 
 [package.metadata.requires-dev]
