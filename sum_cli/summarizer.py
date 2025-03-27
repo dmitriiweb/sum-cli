@@ -40,15 +40,24 @@ def summarize_url(args: SummarizerArgs) -> None:
 def _chat(args: SummarizerArgs, article: schema.ArticleText):
     if article.text is None:
         raise ChatSummarizerError("No text to chat with")
-    texts = emb.Embeder.generate_texts(article.text, args.num_ctx)
-    embeder = emb.Embeder(args.embeding_name)
-    print("\n\nGenerating embeddings...\n\n")
-    embeder.add_texts(texts)
+
+    article_words = article.text.split()
+    article_length = len(article_words)
+    use_embedings = False
+    if article_length > args.num_ctx:
+        texts = emb.Embeder.generate_texts(article.text, args.num_ctx)
+        embeder = emb.Embeder(args.embeding_name)
+        print("\n\nGenerating embeddings...\n\n")
+        embeder.add_texts(texts)
+        use_embedings = True
     model = ChatOllama(model=args.model)
     chat_chain = pt.chat_output_chat_template | model | StrOutputParser()
     while True:
         question = input("\n\nYou: ")
-        context = "\n\n".join([str(i) for i in embeder.get_relevant(question)])
+        if use_embedings:
+            context = "\n\n".join([str(i) for i in embeder.get_relevant(question)])
+        else:
+            context = article.text
         for token in chat_chain.stream(
             {"context": context, "question": question, "language": args.language}
         ):
